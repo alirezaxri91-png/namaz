@@ -3,36 +3,33 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>نقشه مسیر نماز</title>
+<title>نقشه مسیر نماز خفن</title>
 <style>
-  :root{--bg:#0b1f0b; --card:#09200d; --accent:#a4ff00; --muted:#9aa4b2;}
+  :root{--bg:#061a0b; --accent:#00ff99; --accent2:#33ffcc; --muted:#9aa4b2;}
   *{box-sizing:border-box;font-family: Vazirmatn, 'Helvetica Neue', Arial, sans-serif;}
-  body{margin:0;background:var(--bg);color:#e6eef8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
-  .wrap{width:100%;max-width:1200px;background:rgba(0,0,0,0.1);border-radius:16px;padding:20px;box-shadow:0 8px 30px rgba(0,0,0,0.7);}
+  body{margin:0;background:var(--bg);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;}
+  .wrap{width:100%;max-width:1400px;background:rgba(0,0,0,0.2);border-radius:16px;padding:20px;box-shadow:0 8px 30px rgba(0,0,0,0.8);}
   header{display:flex;gap:12px;align-items:center;margin-bottom:16px;}
   header img{width:56px;height:56px;border-radius:10px;object-fit:cover;border:2px solid rgba(255,255,255,0.1);}
-  h1{font-size:20px;margin:0;}
-  p.lead{margin:0;color:var(--muted);font-size:13px;}
-
+  h1{font-size:22px;margin:0;}
+  p.lead{margin:0;color:var(--muted);font-size:14px;}
   .controls{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;}
   .card{background:rgba(255,255,255,0.02);padding:12px;border-radius:12px;display:flex;gap:10px;align-items:center;}
   .card input[type=text]{background:transparent;border:1px dashed rgba(255,255,255,0.06);padding:8px;border-radius:8px;color:inherit;}
   .card input[type=file]{color:var(--muted);}
-  .btn{background:var(--accent);color:#09200d;padding:8px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700;}
+  .btn{background:var(--accent);color:#061a0b;padding:10px 16px;border-radius:12px;border:none;cursor:pointer;font-weight:700;transition:all .3s;}
+  .btn:hover{transform:scale(1.05);}
   .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);}
-
-  /* Path */
-  .stage{margin-top:22px;padding:18px;background:rgba(0,0,0,0.05);border-radius:12px;overflow:auto;position:relative;height:500px;}
+  .stage{margin-top:22px;padding:18px;background:rgba(0,0,0,0.05);border-radius:12px;overflow:hidden;position:relative;height:600px;}
   .path-svg{width:100%;height:100%;}
-  .node{position:absolute;width:60px;height:60px;border-radius:999px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.3s;}
-  .node .dot{width:48px;height:48px;border-radius:999px;background:rgba(164,255,0,0.3);display:flex;align-items:center;justify-content:center;font-weight:700;color:#09200d;transition:all 0.3s;}
-  .node.checked .dot{background:var(--accent);color:#09200d;transform:scale(1.2);}
-  .check-svg{width:40px;height:40px;position:absolute;pointer-events:none;opacity:0;transition:all 0.4s;}
-  .node.checked .check-svg{opacity:1;transform:scale(1.1);}
-
+  .node{position:absolute;width:70px;height:70px;border-radius:999px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.5s ease, box-shadow 0.5s ease;}
+  .node .dot{width:50px;height:50px;border-radius:999px;background:rgba(0,255,153,0.3);display:flex;align-items:center;justify-content:center;font-weight:700;color:#061a0b;transition:all 0.5s ease;}
+  .node.checked .dot{background:linear-gradient(45deg,var(--accent),var(--accent2));color:#061a0b;transform:scale(1.3);box-shadow:0 0 20px var(--accent),0 0 40px var(--accent2);}
+  .check-svg{width:45px;height:45px;position:absolute;pointer-events:none;opacity:0;transition:all 0.5s ease;}
+  .node.checked .check-svg{opacity:1;transform:scale(1.2);}
   footer{margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
   .prize{display:flex;align-items:center;gap:12px;}
-  .prize img{width:56px;height:56px;border-radius:10px;object-fit:cover;}
+  .prize img{width:60px;height:60px;border-radius:10px;object-fit:cover;transition:all 0.5s;}
   .small{font-size:13px;color:var(--muted);}
 </style>
 </head>
@@ -41,8 +38,8 @@
 <header>
 <img id="logoPreview" src="" alt="آرم">
 <div>
-<h1>نقشهٔ مسیر نماز — تیک بزن و جایزه بگیر 🎉</h1>
-<p class="lead">روی هر دایره کلیک کن تا تیک بخوره. یا دکمه «نماز خواندم» رو بزن تا مرحلهٔ بعدی تیک بخوره.</p>
+<h1>نقشهٔ مسیر نماز — نسخه خفن 💚✨</h1>
+<p class="lead">روی هر دایره کلیک کن یا «نماز خواندم» رو بزن تا تیک بخوره و مسیر روشن شود!</p>
 </div>
 </header>
 <div class="controls">
@@ -80,9 +77,8 @@
 </div>
 <script>
 const DEFAULT_STEPS = 7;
-const stateKey = 'namaz_path_state_v3';
+const stateKey = 'namaz_path_state_v4';
 let state = JSON.parse(localStorage.getItem(stateKey)||JSON.stringify({steps:DEFAULT_STEPS,checked:Array(DEFAULT_STEPS).fill(false),prizeName:'جایزهٔ آخر مسیر',logoData:''}));
-
 const stage = document.querySelector('.stage');
 const pathSVG = document.getElementById('pathSVG');
 const prizeNameInput = document.getElementById('prizeName');
@@ -99,74 +95,52 @@ function saveState(){localStorage.setItem(stateKey,JSON.stringify(state));}
 
 function generatePath(){
   pathSVG.innerHTML='';
-  const w = stage.clientWidth, h=stage.clientHeight;
-  const radius = 40;
-  let points = [];
+  stage.querySelectorAll('.node').forEach(n=>n.remove());
+  const w = stage.clientWidth, h = stage.clientHeight;
+  const points = [];
   for(let i=0;i<state.steps;i++){
-    let x = 50 + 400*Math.sin(i/2);
-    let y = 50 + i*60;
+    const angle = i * (Math.PI/4);
+    const radius = 100 + i*15;
+    const x = w/2 + radius * Math.cos(angle + Math.sin(i/2));
+    const y = 80 + i*70 + 30*Math.sin(i);
     points.push({x,y});
   }
-  // Draw path
-  let d='';
-  points.forEach((p,i)=>{d+=i===0?`M${p.x},${p.y}`:` L${p.x},${p.y}`});
+  let d=''; points.forEach((p,i)=>{d+=i===0?`M${p.x},${p.y}`:` L${p.x},${p.y}`});
   const pathEl = document.createElementNS('http://www.w3.org/2000/svg','path');
   pathEl.setAttribute('d',d);
-  pathEl.setAttribute('stroke','lime');
-  pathEl.setAttribute('stroke-width','6');
-  pathEl.setAttribute('fill','none');
+  pathEl.setAttribute('stroke','url(#grad)');
+  pathEl.setAttribute('stroke-width','8'); pathEl.setAttribute('fill','none');
+  pathEl.setAttribute('stroke-linecap','round'); pathEl.setAttribute('stroke-linejoin','round');
+  const grad = document.createElementNS('http://www.w3.org/2000/svg','linearGradient'); grad.id='grad'; grad.setAttribute('x1','0%'); grad.setAttribute('y1','0%'); grad.setAttribute('x2','100%'); grad.setAttribute('y2','0%');
+  const stop1=document.createElementNS('http://www.w3.org/2000/svg','stop'); stop1.setAttribute('offset','0%'); stop1.setAttribute('stop-color','#00ff99');
+  const stop2=document.createElementNS('http://www.w3.org/2000/svg','stop'); stop2.setAttribute('offset','100%'); stop2.setAttribute('stop-color','#33ffcc');
+  grad.appendChild(stop1); grad.appendChild(stop2);
+  pathSVG.appendChild(grad);
   pathSVG.appendChild(pathEl);
-
-  // Add nodes
   points.forEach((p,i)=>{
-    let node = document.createElement('div');
-    node.className='node'+(state.checked[i]?' checked':'');
-    node.style.left=(p.x-30)+'px';
-    node.style.top=(p.y-30)+'px';
-    let dot = document.createElement('div');
-    dot.className='dot'; dot.textContent=i+1;
-    node.appendChild(dot);
-    let svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
-    svg.setAttribute('viewBox','0 0 24 24');
-    svg.classList.add('check-svg');
-    let path = document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('d','M20 6L9 17l-5-5'); path.setAttribute('fill','none'); path.setAttribute('stroke','#09200d'); path.setAttribute('stroke-width','3'); path.setAttribute('stroke-linecap','round'); path.setAttribute('stroke-linejoin','round');
-    svg.appendChild(path);
-    node.appendChild(svg);
+    let node = document.createElement('div'); node.className='node'+(state.checked[i]?' checked':''); node.style.left=(p.x-35)+'px'; node.style.top=(p.y-35)+'px';
+    let dot=document.createElement('div'); dot.className='dot'; dot.textContent=i+1; node.appendChild(dot);
+    let svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); svg.setAttribute('viewBox','0 0 24 24'); svg.classList.add('check-svg');
+    let path = document.createElementNS('http://www.w3.org/2000/svg','path'); path.setAttribute('d','M20 6L9 17l-5-5'); path.setAttribute('fill','none'); path.setAttribute('stroke','#061a0b'); path.setAttribute('stroke-width','3'); path.setAttribute('stroke-linecap','round'); path.setAttribute('stroke-linejoin','round'); svg.appendChild(path); node.appendChild(svg);
     node.addEventListener('click',()=>{state.checked[i]=!state.checked[i];renderNodes();});
     stage.appendChild(node);
   });
 }
 
 function renderNodes(){
-  const nodes = document.querySelectorAll('.node');
-  nodes.forEach((n,i)=>{
-    n.classList.toggle('checked',state.checked[i]);
-  });
+  document.querySelectorAll('.node').forEach((n,i)=>{n.classList.toggle('checked',state.checked[i]);});
   prizeLabel.textContent = state.prizeName;
-  if(state.logoData){prizeLogo.src=state.logoData;logoPreview.src=state.logoData;prizeLogo.style.display='block';}else{prizeLogo.style.display='none';}
+  if(state.logoData){prizeLogo.src=state.logoData;logoPreview.src=state.logoData; prizeLogo.style.display='block';} else{prizeLogo.style.display='none';}
   saveState();
 }
 
-prayBtn.addEventListener('click',()=>{
-  const next = state.checked.indexOf(false);
-  if(next>-1){state.checked[next]=true;renderNodes();}
-});
-resetBtn.addEventListener('click',()=>{
-  state.checked=Array(state.steps).fill(false);renderNodes();
-});
+prayBtn.addEventListener('click',()=>{const next = state.checked.indexOf(false); if(next>-1){state.checked[next]=true;renderNodes();}});
+resetBtn.addEventListener('click',()=>{state.checked=Array(state.steps).fill(false);renderNodes();});
 prizeNameInput.addEventListener('input',(e)=>{state.prizeName=e.target.value;renderNodes();});
-logoFile.addEventListener('change',e=>{
-  const f = e.target.files[0];if(!f)return;
-  const reader = new FileReader();reader.onload=()=>{state.logoData=reader.result;renderNodes();};reader.readAsDataURL(f);
-});
-applySteps.addEventListener('click',()=>{
-  const n = parseInt(stepsCountInput.value)||7;
-  state.steps=n;state.checked=Array(n).fill(false);generatePath();renderNodes();
-});
+logoFile.addEventListener('change',e=>{const f=e.target.files[0]; if(!f)return; const reader=new FileReader(); reader.onload=()=>{state.logoData=reader.result;renderNodes();}; reader.readAsDataURL(f);});
+applySteps.addEventListener('click',()=>{const n=parseInt(stepsCountInput.value)||7; state.steps=n; state.checked=Array(n).fill(false); generatePath(); renderNodes();});
 stepsCountInput.value=state.steps;
-generatePath();
-renderNodes();
+generatePath(); renderNodes();
 </script>
 </body>
 </html>
