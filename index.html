@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نقشه مسیر نماز خفن 😎</title>
+<title>نقشه مسیر نماز خفن</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@500&display=swap');
 
@@ -25,6 +25,7 @@
     align-items: center;
     min-height: 100vh;
     overflow-x: hidden;
+    position: relative;
   }
 
   .panel {
@@ -40,6 +41,7 @@
     box-shadow: 0 0 20px #000;
     flex-wrap: wrap;
     gap: 10px;
+    font-family: "Vazirmatn", sans-serif;
   }
 
   .panel button, .panel input {
@@ -113,6 +115,11 @@
     100% { filter: brightness(1.5); }
   }
 
+  @keyframes confetti-fall {
+    0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
   .confetti {
     position: fixed;
     top: 0;
@@ -122,11 +129,6 @@
     opacity: 0.9;
     animation: confetti-fall 3s linear;
     z-index: 9999;
-  }
-
-  @keyframes confetti-fall {
-    0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
   }
 
   .btn-big {
@@ -140,6 +142,7 @@
     cursor: pointer;
     transition: all .3s ease;
     animation: pulse 2s infinite;
+    font-family: "Vazirmatn", sans-serif;
   }
 
   .btn-big:hover {
@@ -161,7 +164,17 @@
     gap: 10px;
   }
 
-  .footer span { color: #b3ffb3; font-size: 14px; }
+  .footer span {
+    color: #b3ffb3;
+    font-size: 14px;
+  }
+
+  #prizePreview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
 
   #prizeLogo {
     width: 80px;
@@ -171,14 +184,21 @@
     box-shadow: 0 0 10px #000;
   }
 
-  @keyframes pulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.1);} }
+  #prizeLabel {
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
 </style>
 </head>
 <body>
 
 <div class="panel">
-  <button id="makeImageBtn">📸 ساخت عکس</button>
-  <button id="makeLinkBtn">🔗 ساخت لینک اشتراک</button>
   <button id="applyBtn">اعمال</button>
   <div style="display:flex;gap:10px;align-items:center;">
     <button id="decreaseBtn">−</button>
@@ -196,8 +216,10 @@
 
 <div class="footer">
   <span>ساخته‌شده با 💚 توسط علیرضا حاتمی</span>
-  <img id="prizeLogo" src="">
-  <div id="prizeLabel"></div>
+  <div id="prizePreview">
+    <img id="prizeLogo" src="">
+    <div id="prizeLabel"></div>
+  </div>
 </div>
 
 <script>
@@ -205,25 +227,18 @@ let steps = 20;
 let checked = [];
 const grid = document.getElementById("pathGrid");
 
-const urlParams = new URLSearchParams(window.location.search);
-if(urlParams.has('data')){
-  const decoded = JSON.parse(atob(urlParams.get('data')));
-  steps = decoded.steps;
-  checked = decoded.checked;
-  document.getElementById("prizeName").value = decoded.prizeName;
-  document.getElementById("prizeLogo").src = decoded.prizeImg;
-  document.getElementById("prizeLogo").style.display = decoded.prizeImg ? "block" : "none";
-  document.getElementById("prizeLabel").textContent = decoded.prizeName;
-}
-
 function saveData() {
   localStorage.setItem("prayerData", JSON.stringify({ steps, checked }));
 }
 
 function loadData() {
   const data = JSON.parse(localStorage.getItem("prayerData"));
-  if (data) { steps = data.steps; checked = data.checked; }
-  else checked = Array(steps).fill(false);
+  if (data) {
+    steps = data.steps;
+    checked = data.checked;
+  } else {
+    checked = Array(steps).fill(false);
+  }
 }
 
 function renderGrid() {
@@ -231,8 +246,14 @@ function renderGrid() {
   for (let i = 0; i < steps; i++) {
     const c = document.createElement("div");
     c.className = "circle" + (checked[i] ? " checked" : "");
-    c.innerHTML = `<svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="#021a08" stroke-width="3" fill="none"/></svg>`;
-    c.onclick = () => { checked[i] = !checked[i]; renderGrid(); saveData(); };
+    c.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M20 6L9 17l-5-5" stroke="#021a08" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                   </svg>`;
+    c.addEventListener("click", () => {
+      checked[i] = !checked[i];
+      renderGrid();
+      saveData();
+    });
     grid.appendChild(c);
   }
 }
@@ -240,28 +261,28 @@ function renderGrid() {
 function confetti() {
   for (let i = 0; i < 100; i++) {
     const conf = document.createElement("div");
-    conf.className = "confetti";
+    conf.classList.add("confetti");
     conf.style.left = Math.random() * 100 + "vw";
-    conf.style.backgroundColor = `hsl(${Math.random()*360},100%,60%)`;
-    conf.style.animationDuration = (Math.random()*2+2) + "s";
+    conf.style.backgroundColor = `hsl(${Math.random() * 360},100%,60%)`;
+    conf.style.animationDuration = (Math.random() * 2 + 2) + "s";
     document.body.appendChild(conf);
-    setTimeout(()=>conf.remove(),3000);
+    setTimeout(() => conf.remove(), 3000);
   }
 }
 
-document.getElementById("prayBtn").onclick = ()=>{
+document.getElementById("prayBtn").onclick = () => {
   const idx = checked.indexOf(false);
   if (idx !== -1) {
     checked[idx] = true;
     renderGrid();
     saveData();
-    if(checked.every(c=>c)) confetti();
+    if (checked.every(c => c)) confetti();
   }
 };
 
-document.getElementById("bonusBtn").onclick = ()=>{
+document.getElementById("bonusBtn").onclick = () => {
   const idx = checked.indexOf(false);
-  if(idx !== -1){
+  if (idx !== -1) {
     checked[idx] = true;
     renderGrid();
     document.querySelectorAll(".circle")[idx].classList.add("gold");
@@ -269,78 +290,47 @@ document.getElementById("bonusBtn").onclick = ()=>{
   }
 };
 
-document.getElementById("resetBtn").onclick = ()=>{
+document.getElementById("resetBtn").onclick = () => {
   checked = Array(steps).fill(false);
   renderGrid();
   saveData();
 };
 
-document.getElementById("increaseBtn").onclick = ()=>{
-  steps++; checked.push(false); renderGrid(); saveData();
+document.getElementById("increaseBtn").onclick = () => {
+  steps++;
+  checked.push(false);
+  renderGrid();
+  saveData();
 };
 
-document.getElementById("decreaseBtn").onclick = ()=>{
-  if(steps>1){ steps--; checked.pop(); renderGrid(); saveData(); }
+document.getElementById("decreaseBtn").onclick = () => {
+  if (steps > 1) { steps--; checked.pop(); renderGrid(); saveData(); }
 };
 
-document.getElementById("applyBtn").onclick = ()=>{
-  const n = parseInt(document.getElementById("stepsInput").value);
-  if(!isNaN(n)&&n>0){ steps=n; checked=Array(steps).fill(false); renderGrid(); saveData(); }
-};
-
-document.getElementById("prizeImg").addEventListener("change", e=>{
-  const f=e.target.files[0]; if(!f)return;
-  const reader=new FileReader();
-  reader.onload=()=>{document.getElementById("prizeLogo").src=reader.result;document.getElementById("prizeLogo").style.display="block";}
-  reader.readAsDataURL(f);
-});
-
-document.getElementById("prizeName").addEventListener("input", e=>{
-  document.getElementById("prizeLabel").textContent=e.target.value;
-});
-
-// 📸 ساخت عکس کارت
-document.getElementById("makeImageBtn").onclick=()=>{
-  const prize=document.getElementById("prizeName").value||"بدون جایزه";
-  const prizeImg=document.getElementById("prizeLogo").src;
-  const done=checked.filter(c=>c).length;
-
-  const canvas=document.createElement("canvas");
-  canvas.width=400;canvas.height=220;
-  const ctx=canvas.getContext("2d");
-  ctx.fillStyle="#063d1b";ctx.fillRect(0,0,400,220);
-  ctx.fillStyle="#fff";ctx.font="20px Vazirmatn";
-  ctx.fillText(`نمازها: ${done} از ${steps}`,20,40);
-  ctx.fillText(`🎁 جایزه: ${prize}`,20,80);
-  ctx.fillText("🌙 مسیر نماز خفن",20,130);
-
-  if(prizeImg){
-    const img=new Image();
-    img.onload=()=>{ctx.drawImage(img,280,40,100,100);download();};
-    img.src=prizeImg;
-  } else download();
-
-  function download(){
-    const a=document.createElement("a");
-    a.href=canvas.toDataURL("image/png");
-    a.download="namaz_card.png";
-    a.click();
+document.getElementById("applyBtn").onclick = () => {
+  const newSteps = parseInt(document.getElementById("stepsInput").value);
+  if (!isNaN(newSteps) && newSteps > 0) {
+    steps = newSteps;
+    checked = Array(steps).fill(false);
+    renderGrid();
+    saveData();
   }
 };
 
-// 🔗 ساخت لینک اشتراک
-document.getElementById("makeLinkBtn").onclick=()=>{
-  const data={
-    steps,
-    checked,
-    prizeName:document.getElementById("prizeName").value,
-    prizeImg:document.getElementById("prizeLogo").src
+document.getElementById("prizeImg").addEventListener("change", (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    document.getElementById("prizeLogo").src = reader.result;
+    document.getElementById("prizeLogo").style.display = "block";
   };
-  const encoded=btoa(JSON.stringify(data));
-  const link=`${location.origin}${location.pathname}?data=${encoded}`;
-  navigator.clipboard.writeText(link);
-  alert("🔗 لینک ساخته شد و در کلیپ‌بورد کپی شد!\nمی‌تونی برای هرکسی بفرستی تا همین مسیر و امتیازها رو ببینه!");
-};
+  reader.readAsDataURL(f);
+});
+
+document.getElementById("prizeName").addEventListener("input", (e) => {
+  document.getElementById("prizeLabel").textContent = e.target.value;
+});
 
 loadData();
 renderGrid();
