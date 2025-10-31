@@ -41,6 +41,7 @@
     box-shadow: 0 0 20px #000;
     flex-wrap: wrap;
     gap: 10px;
+    font-family: "Vazirmatn", sans-serif;
   }
 
   .panel button, .panel input {
@@ -52,6 +53,7 @@
     color: #fff;
     cursor: pointer;
     transition: all .3s;
+    font-family: "Vazirmatn", sans-serif;
   }
 
   .panel button:hover {
@@ -71,8 +73,8 @@
   }
 
   .circle {
-    width: 65px;
-    height: 65px;
+    width: 60px;
+    height: 60px;
     background: var(--green);
     border-radius: 50%;
     display: flex;
@@ -80,29 +82,26 @@
     justify-content: center;
     position: relative;
     box-shadow: 0 0 10px #012;
-    transition: all .4s ease;
+    transition: all 0.3s ease;
     cursor: pointer;
   }
 
   .circle svg {
-    position: absolute;
     width: 30px;
     height: 30px;
     opacity: 0;
     transform: scale(0);
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
 
   .circle.checked {
     background: var(--light);
-    box-shadow: 0 0 20px var(--light), 0 0 30px var(--light);
-    transform: scale(1.15);
-    animation: pulse 0.6s ease;
+    box-shadow: 0 0 15px var(--light), 0 0 25px var(--light);
   }
 
   .circle.checked svg {
     opacity: 1;
-    transform: scale(1.2);
+    transform: scale(1);
   }
 
   .circle.gold {
@@ -114,11 +113,6 @@
   @keyframes shine {
     0% { filter: brightness(1); }
     100% { filter: brightness(1.5); }
-  }
-
-  @keyframes pulse {
-    0%,100% { transform: scale(1); }
-    50% { transform: scale(1.3); }
   }
 
   @keyframes confetti-fall {
@@ -148,6 +142,7 @@
     cursor: pointer;
     transition: all .3s ease;
     animation: pulse 2s infinite;
+    font-family: "Vazirmatn", sans-serif;
   }
 
   .btn-big:hover {
@@ -160,17 +155,45 @@
     width: 90%;
     max-width: 900px;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
     background: #063d1b;
     border-radius: 20px;
-    padding: 10px 20px;
+    padding: 20px;
     box-shadow: 0 0 20px #000;
-    flex-wrap: wrap;
+    gap: 10px;
   }
 
-  .footer span { color: #b3ffb3; }
+  .footer span {
+    color: #b3ffb3;
+    font-size: 14px;
+  }
 
+  #prizePreview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #prizeLogo {
+    width: 80px;
+    height: 80px;
+    border-radius: 15px;
+    display: none;
+    box-shadow: 0 0 10px #000;
+  }
+
+  #prizeLabel {
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
 </style>
 </head>
 <body>
@@ -193,8 +216,8 @@
 
 <div class="footer">
   <span>ساخته‌شده با 💚 توسط علیرضا حاتمی</span>
-  <div id="prizePreview" style="display:flex;align-items:center;gap:10px;">
-    <img id="prizeLogo" src="" style="width:60px;height:60px;border-radius:10px;display:none;">
+  <div id="prizePreview">
+    <img id="prizeLogo" src="">
     <div id="prizeLabel"></div>
   </div>
 </div>
@@ -223,12 +246,14 @@ function renderGrid() {
   for (let i = 0; i < steps; i++) {
     const c = document.createElement("div");
     c.className = "circle" + (checked[i] ? " checked" : "");
-    c.innerHTML = `<svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="#021" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    c.onclick = () => {
+    c.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M20 6L9 17l-5-5" stroke="#021a08" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                   </svg>`;
+    c.addEventListener("click", () => {
       checked[i] = !checked[i];
       renderGrid();
       saveData();
-    };
+    });
     grid.appendChild(c);
   }
 }
@@ -291,6 +316,21 @@ document.getElementById("applyBtn").onclick = () => {
     saveData();
   }
 };
+
+document.getElementById("prizeImg").addEventListener("change", (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    document.getElementById("prizeLogo").src = reader.result;
+    document.getElementById("prizeLogo").style.display = "block";
+  };
+  reader.readAsDataURL(f);
+});
+
+document.getElementById("prizeName").addEventListener("input", (e) => {
+  document.getElementById("prizeLabel").textContent = e.target.value;
+});
 
 loadData();
 renderGrid();
