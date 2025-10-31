@@ -199,6 +199,7 @@
 <body>
 
 <div class="panel">
+  <button id="shareBtn">📤 اشتراک‌گذاری</button>
   <button id="applyBtn">اعمال</button>
   <div style="display:flex;gap:10px;align-items:center;">
     <button id="decreaseBtn">−</button>
@@ -226,6 +227,17 @@
 let steps = 20;
 let checked = [];
 const grid = document.getElementById("pathGrid");
+
+// بارگذاری اطلاعات از لینک share
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.has('data')){
+  const decoded = JSON.parse(atob(urlParams.get('data')));
+  steps = decoded.steps;
+  checked = decoded.checked;
+  document.getElementById("prizeName").value = decoded.prizeName;
+  document.getElementById("prizeLogo").src = decoded.prizeImg;
+  document.getElementById("prizeLogo").style.display = decoded.prizeImg ? "block" : "none";
+}
 
 function saveData() {
   localStorage.setItem("prayerData", JSON.stringify({ steps, checked }));
@@ -331,6 +343,53 @@ document.getElementById("prizeImg").addEventListener("change", (e) => {
 document.getElementById("prizeName").addEventListener("input", (e) => {
   document.getElementById("prizeLabel").textContent = e.target.value;
 });
+
+// دکمه اشتراک‌گذاری
+document.getElementById("shareBtn").onclick = () => {
+  const data = {
+    steps,
+    checked,
+    prizeName: document.getElementById("prizeName").value,
+    prizeImg: document.getElementById("prizeLogo").src || ""
+  };
+  
+  const encoded = btoa(JSON.stringify(data));
+  const shareLink = `${location.origin}${location.pathname}?data=${encoded}`;
+  
+  // ساخت تصویر ساده با canvas
+  const canvas = document.createElement("canvas");
+  canvas.width = 400;
+  canvas.height = 200;
+  const ctx = canvas.getContext("2d");
+  
+  ctx.fillStyle = "#063d1b";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.fillStyle = "#fff";
+  ctx.font = "20px Vazirmatn";
+  ctx.fillText(`نمازها: ${checked.filter(c=>c).length} از ${steps}`, 20, 40);
+  ctx.fillText(`جایزه: ${data.prizeName}`, 20, 70);
+  
+  if(data.prizeImg){
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      ctx.drawImage(img, 300, 20, 80, 80);
+      downloadCanvas();
+    };
+    img.src = data.prizeImg;
+  } else downloadCanvas();
+  
+  function downloadCanvas() {
+    const link = document.createElement("a");
+    link.download = "prayer_share.png";
+    link.href = canvas.toDataURL();
+    link.click();
+    
+    // نمایش لینک
+    prompt("لینک اشتراک‌گذاری:", shareLink);
+  }
+};
 
 loadData();
 renderGrid();
