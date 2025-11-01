@@ -6,6 +6,7 @@
 <title>نقشه مسیر نماز خفن</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@500&display=swap');
+
   :root {
     --bg1: #021a08;
     --bg2: #03280f;
@@ -13,6 +14,7 @@
     --light: #2aff7c;
     --gold: #ffd700;
   }
+
   body {
     margin: 0;
     font-family: "Vazirmatn", sans-serif;
@@ -25,6 +27,7 @@
     overflow-x: hidden;
     position: relative;
   }
+
   .panel {
     display: flex;
     justify-content: space-between;
@@ -38,7 +41,9 @@
     box-shadow: 0 0 20px #000;
     flex-wrap: wrap;
     gap: 10px;
+    font-family: "Vazirmatn", sans-serif;
   }
+
   .panel button, .panel input {
     border: none;
     border-radius: 20px;
@@ -50,11 +55,13 @@
     transition: all .3s;
     font-family: "Vazirmatn", sans-serif;
   }
+
   .panel button:hover {
     transform: scale(1.08);
     background: var(--light);
     color: #021a08;
   }
+
   .grid {
     margin-top: 40px;
     display: grid;
@@ -64,6 +71,7 @@
     width: 90%;
     max-width: 900px;
   }
+
   .circle {
     width: 60px;
     height: 60px;
@@ -77,6 +85,7 @@
     transition: all 0.3s ease;
     cursor: pointer;
   }
+
   .circle svg {
     width: 30px;
     height: 30px;
@@ -84,23 +93,33 @@
     transform: scale(0);
     transition: all 0.3s ease;
   }
+
   .circle.checked {
     background: var(--light);
     box-shadow: 0 0 15px var(--light), 0 0 25px var(--light);
   }
+
   .circle.checked svg {
     opacity: 1;
     transform: scale(1);
   }
+
   .circle.gold {
     background: var(--gold);
     box-shadow: 0 0 25px var(--gold), 0 0 45px var(--gold);
     animation: shine 1s infinite alternate;
   }
+
   @keyframes shine {
     0% { filter: brightness(1); }
     100% { filter: brightness(1.5); }
   }
+
+  @keyframes confetti-fall {
+    0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
   .confetti {
     position: fixed;
     top: 0;
@@ -111,10 +130,7 @@
     animation: confetti-fall 3s linear;
     z-index: 9999;
   }
-  @keyframes confetti-fall {
-    0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-  }
+
   .btn-big {
     margin-top: 25px;
     background: #a5ff4e;
@@ -126,11 +142,14 @@
     cursor: pointer;
     transition: all .3s ease;
     animation: pulse 2s infinite;
+    font-family: "Vazirmatn", sans-serif;
   }
+
   .btn-big:hover {
     background: var(--gold);
     box-shadow: 0 0 30px var(--gold);
   }
+
   .footer {
     margin-top: 40px;
     width: 90%;
@@ -144,16 +163,19 @@
     box-shadow: 0 0 20px #000;
     gap: 10px;
   }
+
   .footer span {
     color: #b3ffb3;
     font-size: 14px;
   }
+
   #prizePreview {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
   }
+
   #prizeLogo {
     width: 80px;
     height: 80px;
@@ -161,11 +183,13 @@
     display: none;
     box-shadow: 0 0 10px #000;
   }
+
   #prizeLabel {
     color: #fff;
     font-size: 18px;
     font-weight: bold;
   }
+
   @keyframes pulse {
     0%,100% { transform: scale(1); }
     50% { transform: scale(1.1); }
@@ -184,9 +208,6 @@
   <button id="resetBtn">بازنشانی</button>
   <input id="prizeName" type="text" placeholder="اسم جایزه">
   <input id="prizeImg" type="file" accept="image/*">
-  <!-- دکمه‌های جدید -->
-  <button id="makeImg">📸 ساخت عکس</button>
-  <button id="makeLink">🔗 ساخت لینک اشتراک</button>
 </div>
 
 <button class="btn-big" id="prayBtn">✅ یک نماز خواندم</button>
@@ -209,21 +230,34 @@ const grid = document.getElementById("pathGrid");
 function saveData() {
   localStorage.setItem("prayerData", JSON.stringify({ steps, checked }));
 }
+
 function loadData() {
   const data = JSON.parse(localStorage.getItem("prayerData"));
-  if (data) { steps = data.steps; checked = data.checked; } 
-  else { checked = Array(steps).fill(false); }
+  if (data) {
+    steps = data.steps;
+    checked = data.checked;
+  } else {
+    checked = Array(steps).fill(false);
+  }
 }
+
 function renderGrid() {
   grid.innerHTML = "";
   for (let i = 0; i < steps; i++) {
     const c = document.createElement("div");
     c.className = "circle" + (checked[i] ? " checked" : "");
-    c.innerHTML = `<svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="#021a08" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    c.onclick = () => { checked[i] = !checked[i]; renderGrid(); saveData(); };
+    c.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M20 6L9 17l-5-5" stroke="#021a08" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                   </svg>`;
+    c.addEventListener("click", () => {
+      checked[i] = !checked[i];
+      renderGrid();
+      saveData();
+    });
     grid.appendChild(c);
   }
 }
+
 function confetti() {
   for (let i = 0; i < 100; i++) {
     const conf = document.createElement("div");
@@ -235,7 +269,8 @@ function confetti() {
     setTimeout(() => conf.remove(), 3000);
   }
 }
-prayBtn.onclick = () => {
+
+document.getElementById("prayBtn").onclick = () => {
   const idx = checked.indexOf(false);
   if (idx !== -1) {
     checked[idx] = true;
@@ -244,7 +279,8 @@ prayBtn.onclick = () => {
     if (checked.every(c => c)) confetti();
   }
 };
-bonusBtn.onclick = () => {
+
+document.getElementById("bonusBtn").onclick = () => {
   const idx = checked.indexOf(false);
   if (idx !== -1) {
     checked[idx] = true;
@@ -253,77 +289,52 @@ bonusBtn.onclick = () => {
     saveData();
   }
 };
-resetBtn.onclick = () => { checked = Array(steps).fill(false); renderGrid(); saveData(); };
-increaseBtn.onclick = () => { steps++; checked.push(false); renderGrid(); saveData(); };
-decreaseBtn.onclick = () => { if (steps > 1) { steps--; checked.pop(); renderGrid(); saveData(); } };
-applyBtn.onclick = () => {
-  const newSteps = parseInt(stepsInput.value);
-  if (!isNaN(newSteps) && newSteps > 0) { steps = newSteps; checked = Array(steps).fill(false); renderGrid(); saveData(); }
+
+document.getElementById("resetBtn").onclick = () => {
+  checked = Array(steps).fill(false);
+  renderGrid();
+  saveData();
 };
-prizeImg.addEventListener("change", (e) => {
+
+document.getElementById("increaseBtn").onclick = () => {
+  steps++;
+  checked.push(false);
+  renderGrid();
+  saveData();
+};
+
+document.getElementById("decreaseBtn").onclick = () => {
+  if (steps > 1) { steps--; checked.pop(); renderGrid(); saveData(); }
+};
+
+document.getElementById("applyBtn").onclick = () => {
+  const newSteps = parseInt(document.getElementById("stepsInput").value);
+  if (!isNaN(newSteps) && newSteps > 0) {
+    steps = newSteps;
+    checked = Array(steps).fill(false);
+    renderGrid();
+    saveData();
+  }
+};
+
+document.getElementById("prizeImg").addEventListener("change", (e) => {
   const f = e.target.files[0];
   if (!f) return;
   const reader = new FileReader();
   reader.onload = () => {
-    prizeLogo.src = reader.result;
-    prizeLogo.style.display = "block";
+    document.getElementById("prizeLogo").src = reader.result;
+    document.getElementById("prizeLogo").style.display = "block";
   };
   reader.readAsDataURL(f);
 });
-prizeName.addEventListener("input", (e) => {
-  prizeLabel.textContent = e.target.value;
+
+document.getElementById("prizeName").addEventListener("input", (e) => {
+  document.getElementById("prizeLabel").textContent = e.target.value;
 });
+
 loadData();
 renderGrid();
-
-// 🎁 ساخت عکس کارت نماز
-document.getElementById("makeImg").onclick = () => {
-  const prizeImgSrc = prizeLogo.src;
-  const prizeName = prizeLabel.textContent || "جایزه نامشخص";
-  const total = checked.length;
-  const done = checked.filter(c=>c).length;
-
-  const canvas = document.createElement("canvas");
-  canvas.width = 500;
-  canvas.height = 300;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#03280f";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#fff";
-  ctx.font = "22px Vazirmatn";
-  ctx.fillText(`نقشه مسیر نماز خفن`, 150, 40);
-  ctx.fillText(`تعداد نمازها: ${done} از ${total}`, 40, 100);
-  ctx.fillText(`جایزه: ${prizeName}`, 40, 140);
-
-  if (prizeImgSrc) {
-    const img = new Image();
-    img.onload = () => {
-      ctx.drawImage(img, 350, 80, 120, 120);
-      downloadCard();
-    };
-    img.src = prizeImgSrc;
-  } else downloadCard();
-
-  function downloadCard() {
-    const link = document.createElement("a");
-    link.download = "namaz_card.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  }
-};
-
-// 🔗 ساخت لینک اشتراک
-document.getElementById("makeLink").onclick = () => {
-  const data = {
-    steps,
-    checked,
-    prizeName: prizeLabel.textContent,
-    prizeImg: prizeLogo.src
-  };
-  const encoded = btoa(JSON.stringify(data));
-  const link = `${location.origin}${location.pathname}?data=${encoded}`;
-  prompt("🔗 لینک مخصوص شما:", link);
-};
 </script>
 </body>
 </html>
+ش
